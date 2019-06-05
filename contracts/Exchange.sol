@@ -68,6 +68,31 @@ contract Exchange is owned {
     // EVENTS //
     ////////////
 
+    //EVENTS for Deposit/withdrawal
+    event DepositForTokenReceived(address indexed _from, uint indexed _symbolIndex, uint _amount, uint _timestamp);
+
+    event WithdrawalToken(address indexed _to, uint indexed _symbolIndex, uint _amount, uint _timestamp);
+
+    event DepositForEthReceived(address indexed _from, uint _amount, uint _timestamp);
+
+    event WithdrawalEth(address indexed _to, uint _amount, uint _timestamp);
+
+    //events for orders
+    event LimitSellOrderCreated(uint indexed _symbolIndex, address indexed _who, uint _amountTokens, uint _priceInWei, uint _orderKey);
+
+    event SellOrderFulfilled(uint indexed _symbolIndex, uint _amount, uint _priceInWei, uint _orderKey);
+
+    event SellOrderCanceled(uint indexed _symbolIndex, uint _priceInWei, uint _orderKey);
+
+    event LimitBuyOrderCreated(uint indexed _symbolIndex, address indexed _who, uint _amountTokens, uint _priceInWei, uint _orderKey);
+
+    event BuyOrderFulfilled(uint indexed _symbolIndex, uint _amount, uint _priceInWei, uint _orderKey);
+
+    event BuyOrderCanceled(uint indexed _symbolIndex, uint _priceInWei, uint _orderKey);
+
+    //events for management
+    event TokenAddedToSystem(uint _symbolIndex, string _token, uint _timestamp);
+
 
 
 
@@ -77,6 +102,7 @@ contract Exchange is owned {
     function depositEther() payable public {
         require(balanceEthForAddress[msg.sender] + msg.value >= balanceEthForAddress[msg.sender]);
         balanceEthForAddress[msg.sender] += msg.value;
+        emit DepositForEthReceived(msg.sender, msg.value, now);
     }
 
     function withdrawEther(uint amountInWei) public {
@@ -84,6 +110,7 @@ contract Exchange is owned {
         require(balanceEthForAddress[msg.sender] - amountInWei <= balanceEthForAddress[msg.sender]);
         balanceEthForAddress[msg.sender] -= amountInWei;
         msg.sender.transfer(amountInWei);
+        emit WithdrawalEth(msg.sender, amountInWei, now); // now depends on miners timestamp
     }
 
     function getEthBalanceInWei() public view returns (uint){
@@ -100,6 +127,7 @@ contract Exchange is owned {
         symbolNameIndex++;
         tokens[symbolNameIndex].symbolName = symbolName;
         tokens[symbolNameIndex].tokenContract = erc20TokenAddress;
+        emit TokenAddedToSystem(symbolNameIndex, symbolName, now);
     }
 
     function hasToken(string memory symbolName) public returns (bool) {
@@ -157,6 +185,7 @@ contract Exchange is owned {
         require(token.transferFrom(msg.sender, address(this), amount) == true);
         require(tokenBalanceForAddress[msg.sender][tokenIndex] + amount >= tokenBalanceForAddress[msg.sender][tokenIndex]);
         tokenBalanceForAddress[msg.sender][tokenIndex] += amount;
+        emit DepositForTokenReceived(msg.sender, symbolNameIndex, amount, now);
     }
 
     function withdrawToken(string memory symbolName, uint amount)  public {
@@ -170,6 +199,7 @@ contract Exchange is owned {
 
         tokenBalanceForAddress[msg.sender][tokenIndex] -= amount;
         require(token.transfer(msg.sender, amount) == true);
+        emit WithdrawalToken(msg.sender, symbolNameIndex, amount, now);
     }
 
     function getBalance(string memory symbolName) public view returns (uint) {

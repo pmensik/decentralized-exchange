@@ -59,6 +59,7 @@ contract("Exchange Basic Tests", function(accounts) {
         );
       })
       .then(function(txResult) {
+        assert.equal(txResult.logs[0].event == "TokenAddedToSystem");
         return supplyTokenInstance.approve(exchangeTokenInstance.address, 1000);
       })
       .then(function(txResult) {
