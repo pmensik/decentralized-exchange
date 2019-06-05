@@ -1,5 +1,5 @@
-var fixedSupplyToken = artifacts.require("./FixedSupplyToken.sol");
-var exchange = artifacts.require("./Exchange.sol");
+var fixedSupplyToken = artifacts.require("FixedSupplyToken");
+var exchange = artifacts.require("Exchange");
 
 module.exports = function(deployer) {
   deployer.deploy(fixedSupplyToken);

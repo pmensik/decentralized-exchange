@@ -1,4 +1,4 @@
-var fixedSupplyToken = artifacts.require("./FixedSupplyToken.sol");
+const fixedSupplyToken = artifacts.require("FixedSupplyToken");
 
 contract("MyToken", function(accounts) {
   it("first account should own all the tokens", function() {
