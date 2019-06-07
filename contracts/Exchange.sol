@@ -215,6 +215,35 @@ contract Exchange is owned {
     // ORDER BOOK - BID ORDERS //
     /////////////////////////////
     function getBuyOrderBook(string memory symbolName) public view returns (uint[] memory, uint[] memory) {
+        Token storage token = tokens[getSymbolIndexOrThrow(symbolName)];
+        uint[] memory buyPrices = new uint[](token.amountBuyPrices);
+        uint[] memory buyVolumes = new uint[](token.amountBuyPrices);
+
+        uint whilePrice = token.lowestBuyPrice;
+        uint counter = 0;
+
+        if(token.curBuyPrice > 0) {
+            while(whilePrice <= token.curBuyPrice) {
+                buyPrices[counter] = whilePrice;
+                uint volumeAtPrice = 0;
+                uint offers_key = 0;
+
+                offers_key = token.buyBook[whilePrice].offers_key;
+                while (offers_key <= token.buyBook[whilePrice].offers_length) {
+                    volumeAtPrice += token.buyBook[whilePrice].offers[offers_key].amount;
+                    offers_key++;
+                }
+
+                buyVolumes[counter] = volumeAtPrice;
+
+                if(whilePrice == token.buyBook[whilePrice].higherPrice) {
+                    break;
+                } else {
+                    whilePrice = token.buyBook[whilePrice].higherPrice;
+                }
+            }
+        }
+        return (buyPrices, buyVolumes);
     }
 
 
